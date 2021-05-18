@@ -1,6 +1,7 @@
+import 'package:clima/services/weather.dart';
 import 'package:flutter/material.dart';
-import 'package:clima/services/location.dart';
-import 'package:http/http.dart' as http;
+import 'location_screen.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -11,31 +12,32 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    getLocation();
+    getLocationData();
   }
 
-  void getLocation() async {
-    Location location = Location();
-    await location.getCurrentLocation();
-    String lat = location.latitude.toStringAsFixed(4);
-    String lon = location.longitude.toStringAsFixed(4);
-    print(lat);
-    print(lon);
-  }
+  void getLocationData() async {
+    WeatherModel weatherModel = WeatherModel();
+    var weatherData = await weatherModel.getLocationWeather();
 
-  void getData() async {
-    http.Response response = await http.get(Uri(
-        scheme: 'https',
-        host: 'samples.openweathermap.org',
-        path: 'data/2.5/weather',
-        query: 'lat=35&lon=139&appid=439d4b804bc8187953eb36d2a8c26a02'));
-    print(response.body);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return LocationScreen(
+          locationWeather: weatherData,
+        );
+      }),
+    );
   }
-  // 'https://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=439d4b804bc8187953eb36d2a8c26a02'
 
   @override
   Widget build(BuildContext context) {
-    getData();
-    return Scaffold();
+    return Scaffold(
+      body: Center(
+        child: const SpinKitWave(
+          size: 100.0,
+          color: Colors.white,
+        ),
+      ),
+    );
   }
 }
